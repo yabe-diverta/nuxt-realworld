@@ -1,0 +1,1 @@
+[{"command":"open","target":"http://localhost:3000/","value":""},{"command":"click","target":"link=Sign in","value":""},{"command":"click","target":"link=Sigin up","value":""},{"command":"click","target":"link=Home","value":""}]

@@ -1,4 +1,4 @@
-name: update capchers for visual regression e2e testing for management screen
+name: update captures for visual regression e2e testing
 
 on:
   workflow_dispatch:

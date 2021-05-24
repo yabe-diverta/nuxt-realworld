@@ -30,7 +30,8 @@
     "start": "nuxt-ts start",
     "generate": "nuxt-ts generate",
     "lint:ts": "eslint --ext .ts,.vue --ignore-path .gitignore .",
-    "lint": "yarn lint:js && yarn lint:js && yarn lint:style"
+    "lint": "yarn lint:js && yarn lint:js && yarn lint:style",
+    "serve": "nuxt-ts build && nuxt start"
   },
   "lint-staged": {
     "*.{ts,vue}": "eslint"
@@ -47,7 +48,8 @@
     "@nuxtjs/composition-api": "^0.17.0",
     "@nuxtjs/markdownit": "^1.2.10",
     "core-js": "^3.8.1",
-    "nuxt": "^2.14.12"
+    "nuxt": "^2.14.12",
+    "puppeteer": "^9.1.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
