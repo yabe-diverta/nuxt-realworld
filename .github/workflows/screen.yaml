@@ -1,0 +1,62 @@
+name: visual regression e2e testing for management screen
+
+on:
+  schedule:
+  - cron: "0 0 * * *"
+  workflow_dispatch:
+
+env:
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  e2e:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Locally
+        uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: install dependencies
+        run: npm install
+      - name: e2e
+        id: e2e-sequential-puppeteer-action
+        uses: yabe-diverta/e2e-sequential-puppeteer-action@v2
+        with:
+          serve_cmd: npm run serve  # <- remove this line if your want to test public website.
+          wait_on: http://localhost:3000  # <- change this value where your website is served at.
+          scripts_dir: test/e2e # <- change this value depending on where your test files exists.
+      - name: reg-cli
+        run: npx reg-cli test/e2e/capture test/e2e/newcapture diff -M 0.9 -R report.html
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: report
+          path: |
+            report.html
+            diff
+            test/e2e/capture
+            test/e2e/newcapture
+          retention-days: 7
+
+  # slack:
+  #   needs: [e2e]
+  #   runs-on: ubuntu-latest
+  #   if: failure()
+  #   steps:
+  #     - name: Slack Notification on Failure
+  #       uses: rtCamp/action-slack-notify@master
+  #       env:
+  #         SLACK_CHANNEL: notice-kuroco_e2e_test
+  #         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  #         SLACK_TITLE: 'Test Failure :boom: at *Kuroco Management Screen*'
+  #         SLACK_MESSAGE: 'https://kuroco-e2e-test-screen.herokuapp.com/'
+  #         SLACK_COLOR: danger

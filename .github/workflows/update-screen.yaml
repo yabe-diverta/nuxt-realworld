@@ -1,0 +1,47 @@
+name: update capchers for visual regression e2e testing for management screen
+
+on:
+  workflow_dispatch:
+
+env:
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  e2e:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Locally
+        uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: install dependencies
+        run: npm install
+      - name: e2e
+        id: e2e-sequential-puppeteer-action
+        uses: yabe-diverta/e2e-sequential-puppeteer-action@v2
+        with:
+          serve_cmd: npm run serve  # <- remove this line if your want to test public website.
+          wait_on: http://localhost:3000  # <- change this value where your website is served at.
+          scripts_dir: test/e2e # <- change this value depending on where your test files exists.
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          commit-message: Update report
+          branch: update-capchers-patch
+          delete-branch: true
+          title: '[BOT] Update capchers'
+          body: |
+            chore: Update capchers
+
+            created by manually dispatch event.  
+            **note**: because we've already made sure the latest captures are all valid. checkout tests/screen/capture.            
+          draft: false
